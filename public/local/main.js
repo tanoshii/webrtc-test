@@ -1,8 +1,9 @@
 'use strict';
 
-const video = document.querySelector('video');
 const constraints = { audio: false, video: true };
 const offerOptions = { offerToReceiveAudio: 1, offerToReceiveVideo: 1 };
+const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
 const socket = io.connect();
 const room = "qweqwe";
 
@@ -21,7 +22,7 @@ function grabWebCamVideo() {
 function createPeerConnection(stream) {
     console.log("Creating peer connection");
     localStream = stream;
-    peerConnection = new RTCPeerConnection();
+    peerConnection = new RTCPeerConnection(configuration);
     peerConnection.addEventListener("icecandidate", onIceCandidate);
     
     localStream
