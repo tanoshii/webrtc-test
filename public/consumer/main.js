@@ -65,3 +65,7 @@ socket.emit("join", room);
 socket.on("joined", createPeerConnection);
 socket.on("answer", handleAnswer);
 socket.on("candidate", addIceCandidate);
+socket.on("reconnect", () => {
+    console.log("reconnected");
+    socket.emit("join", room);
+});
