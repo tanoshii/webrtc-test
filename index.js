@@ -4,10 +4,13 @@ const app = express();
 const https = require('https');
 const socketIO = require('socket.io');
 
+const devices = new Map();
+
 // Certificate
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/webrtc-test.tk/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/webrtc-test.tk/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/webrtc-test.tk/chain.pem', 'utf8');
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/safefleetwebrtc.tk-0002/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/safefleetwebrtc.tk-0002/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/safefleetwebrtc.tk-0002/chain.pem', 'utf8');
+
 
 const credentials = {
 	key: privateKey,
@@ -17,7 +20,7 @@ const credentials = {
 
 app.use(express.static('public', { dotfiles: 'allow' }));
 
-const httpsServer = https.createServer(credentials, app);
+const httpsServer = https.createServer(app);
 httpsServer.listen(443, function () {
   console.log('HTTPS Server running on port 443!');
 });
@@ -25,37 +28,51 @@ httpsServer.listen(443, function () {
 const io = socketIO.listen(httpsServer);
 io.sockets.on('connection', (socket) => {
 
-  socket.on("main", (room) => {
-    console.log('Received request to create main ' + room);
-    socket.join(room);
-
-    var clientsInRoom = io.sockets.adapter.rooms[room];
-    var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0;
-    console.log("Creating room", numClients);
+  socket.on("main", (deviceId) => {
+    console.log(`Received request to create a room for device ${JSON.stringify(deviceId)}`);
+    socket.join(deviceId);
+    let clientsInRoom = io.sockets.adapter.rooms[deviceId];
+    let numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0;
+    console.log(`Creating room for device ${deviceId} with ${numClients} clients`);
 
     if (numClients > 1) {
-    	socket.broadcast.emit('joined');
+      io.to(deviceId).emit("joined");
+    }
+    devices.set(deviceId, socket);
+  });
+
+  socket.on("join", (deviceId) => {
+    if (deviceId) {
+      console.log(`Received request to join ${JSON.stringify(deviceId)}`);
+      socket.join(deviceId);
+      const senderSocket = devices.get(deviceId);
+      if (senderSocket) {
+        socket.emit('joined');
+      }
     }
   });
 
-  socket.on("join", (room) => {
-    console.log('Received request to join ' + room);
-    socket.join(room);
-    socket.emit('joined');
-  });
-
   socket.on("offer", (message) => {
-    console.log('Client said offer: ', message);
-    socket.broadcast.emit("offer", message);
+    console.log(`Client said offer: ${JSON.stringify(message)}`);
+    const senderSocket = devices.get(message.deviceId);
+    if (senderSocket) {
+      senderSocket.emit("offer", message.message);
+    }
   });
 
   socket.on("answer", (message) => {
-    console.log('Client said answer: ', message);
-    socket.broadcast.emit("answer", message);
+    console.log(`Client said answer: ${JSON.stringify(message)}`);
+    io.to(message.deviceId).emit("answer", message);
   });
 
+  socket.on("main-candidate", (message) => {
+    console.log(`Client said main candidate: ${JSON.stringify(message)}`);
+    io.to(message.deviceId).emit("main-candidate", message);
+  });
+
+
   socket.on("candidate", (message) => {
-    console.log('Client said candidate: ', message);
-    socket.broadcast.emit("candidate", message);
+    console.log(`Client said candidate: ${JSON.stringify(message)}`);
+    io.to(message.deviceId).emit("candidate", message);
   });
 });

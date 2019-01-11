@@ -4,8 +4,17 @@ const video = document.querySelector('video');
 const offerOptions = { offerToReceiveAudio: 1, offerToReceiveVideo: 1 };
 const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
+let deviceId = "qweqwe";
+
 const socket = io.connect();
-const room = "qweqwe";
+function getDeviceId() {
+    deviceId = prompt("Please enter your device id");
+    if (deviceId) {
+        document.getElementById("deviceId").innerHTML =
+            "Receiver " + deviceId;
+    }
+}
+getDeviceId();
 
 let remoteStream;
 let peerConnection;
@@ -20,14 +29,19 @@ function createPeerConnection() {
     peerConnection
         .createOffer(offerOptions)
         .then((offer) => peerConnection.setLocalDescription(offer))
-        .then(() => socket.emit("offer", peerConnection.localDescription))
-        .catch(console.error);
+        .then(() => {
+            let offer = {
+                deviceId: deviceId,
+                message: peerConnection.localDescription
+            };
+            socket.emit("offer", offer);
+        }).catch(console.error);
 }
 
 function handleAnswer(message) {
     console.log("Handling answer");
     peerConnection
-        .setRemoteDescription(new RTCSessionDescription(message))
+        .setRemoteDescription(new RTCSessionDescription(message.message))
         .catch(console.error);
 }
 
@@ -38,15 +52,16 @@ function onTrack(event) {
 }
 
 function onIceCandidate(event) {
-	if (event.candidate) {
-		console.log("Sending ICE candidate")
-		socket.emit("candidate", {
-			type: 'candidate',
-			label: event.candidate.sdpMLineIndex,
-			id: event.candidate.sdpMid,
-			candidate: event.candidate.candidate
-		});
-	}
+    if (event.candidate) {
+        console.log("Sending ICE candidate")
+        socket.emit("candidate", {
+            deviceId: deviceId,
+            type: 'candidate',
+            label: event.candidate.sdpMLineIndex,
+            id: event.candidate.sdpMid,
+            candidate: event.candidate.candidate
+        });
+    }
 }
 
 function addIceCandidate(message) {
@@ -55,17 +70,17 @@ function addIceCandidate(message) {
         sdpMLineIndex: message.label,
         candidate: message.candidate
     });
-    
+
     peerConnection
         .addIceCandidate(candidate)
         .catch(console.error);
 }
 
-socket.emit("join", room);
+socket.emit("join", deviceId);
 socket.on("joined", createPeerConnection);
 socket.on("answer", handleAnswer);
-socket.on("candidate", addIceCandidate);
+socket.on("main-candidate", addIceCandidate);
 socket.on("reconnect", () => {
     console.log("reconnected");
-    socket.emit("join", room);
+    socket.emit("join", deviceId);
 });
