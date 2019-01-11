@@ -25,7 +25,7 @@ httpsServer.listen(443, function () {
 const io = socketIO.listen(httpsServer);
 io.sockets.on('connection', (socket) => {
 
-  socket.on("create", (room) => {
+  socket.on("main", (room) => {
     console.log('Received request to create main ' + room);
     socket.join(room);
 
@@ -34,14 +34,13 @@ io.sockets.on('connection', (socket) => {
     console.log("Creating room", numClients);
 
     if (numClients > 1) {
-    	socket.emit('joined');
+    	socket.broadcast.emit('joined');
     }
   });
 
   socket.on("join", (room) => {
     console.log('Received request to join ' + room);
     socket.join(room);
-    socket.broadcast.emit("joined");
     socket.emit('joined');
   });
 

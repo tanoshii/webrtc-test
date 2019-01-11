@@ -67,5 +67,6 @@ function addIceCandidate(message) {
         .catch(console.error);
 }
 
+grabWebCamVideo();
 socket.on("offer", createPeerConnection);
 socket.on("candidate", addIceCandidate);
