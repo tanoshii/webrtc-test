@@ -2,6 +2,8 @@
 
 const video = document.querySelector('video');
 const offerOptions = { offerToReceiveAudio: 1, offerToReceiveVideo: 1 };
+const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
 const socket = io.connect();
 const room = "qweqwe";
 
@@ -10,7 +12,7 @@ let peerConnection;
 
 function createPeerConnection() {
     console.log("Creating peer connection");
-    peerConnection = new RTCPeerConnection();
+    peerConnection = new RTCPeerConnection(configuration);
     peerConnection.addEventListener("icecandidate", onIceCandidate);
     peerConnection.addEventListener("track", onTrack);
 
