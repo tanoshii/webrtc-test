@@ -1,42 +1,38 @@
 'use strict';
 
 const video = document.querySelector('video');
-const constraints = { audio: false, video: true };
 const offerOptions = { offerToReceiveAudio: 1, offerToReceiveVideo: 1 };
 const socket = io.connect();
 const room = "qweqwe";
 
-let localStream;
+let remoteStream;
 let peerConnection;
 
-function grabWebCamVideo() {
-    console.log("Obtaining local stream");
-	navigator
-		.mediaDevices
-		.getUserMedia(constraints)
-		.then(createPeerConnection)
-		.catch(console.error);
-}
-
-function createPeerConnection(stream) {
+function createPeerConnection() {
     console.log("Creating peer connection");
-    localStream = stream;
     peerConnection = new RTCPeerConnection();
     peerConnection.addEventListener("icecandidate", onIceCandidate);
-    
-    localStream
-        .getTracks()
-        .forEach((track) => {
-            console.log("Adding track", track);
-            peerConnection.addTrack(track, localStream);
-        });
-        
+    peerConnection.addEventListener("track", onTrack);
+
     console.log("Creating offer");
     peerConnection
         .createOffer(offerOptions)
         .then((offer) => peerConnection.setLocalDescription(offer))
         .then(() => socket.emit("offer", peerConnection.localDescription))
         .catch(console.error);
+}
+
+function handleAnswer(message) {
+    console.log("Handling answer");
+    peerConnection
+        .setRemoteDescription(new RTCSessionDescription(message))
+        .catch(console.error);
+}
+
+function onTrack(event) {
+    console.log("Remote stream added", event);
+    remoteStream = event.streams[0];
+    video.srcObject = remoteStream;
 }
 
 function onIceCandidate(event) {
@@ -51,13 +47,6 @@ function onIceCandidate(event) {
 	}
 }
 
-function handleAnswer(message) {
-    console.log("Handling answer");
-    peerConnection
-        .setRemoteDescription(new RTCSessionDescription(message))
-        .catch(console.error);
-}
-
 function addIceCandidate(message) {
     console.log("Adding ICE candidate");
     var candidate = new RTCIceCandidate({
@@ -70,8 +59,7 @@ function addIceCandidate(message) {
         .catch(console.error);
 }
 
-socket.emit("create", room);
-socket.on("joined", grabWebCamVideo);
+socket.emit("join", room);
+socket.on("joined", createPeerConnection);
 socket.on("answer", handleAnswer);
 socket.on("candidate", addIceCandidate);
-
