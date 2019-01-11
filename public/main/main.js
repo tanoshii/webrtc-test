@@ -70,3 +70,7 @@ function addIceCandidate(message) {
 grabWebCamVideo();
 socket.on("offer", createPeerConnection);
 socket.on("candidate", addIceCandidate);
+socket.on("reconnect", () => {
+    console.log("reconnected");
+    socket.emit("main", room);
+});
