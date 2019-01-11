@@ -4,6 +4,10 @@ const app = express();
 const https = require('https');
 const socketIO = require('socket.io');
 
+const auth = require('./auth');
+
+app.use(auth);
+
 const devices = new Map();
 
 // Certificate
