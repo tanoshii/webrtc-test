@@ -2,7 +2,7 @@
 
 
 const video = document.querySelector('video');
-const constraints = { audio: true, video: true };
+const constraints = { audio: false, video: true };
 const offerOptions = { offerToReceiveAudio: 1, offerToReceiveVideo: 1 };
 const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
