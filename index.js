@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
-const https = require('http');
+const https = require('https');
 const socketIO = require('socket.io');
 
 const auth = require('./auth');
@@ -11,7 +11,6 @@ app.use(auth);
 const devices = new Map();
 
 // Certificate
-/*
 const privateKey = fs.readFileSync('/home/ubuntu/privkey.pem', 'utf8');
 const certificate = fs.readFileSync('/home/ubuntu/cert.pem', 'utf8');
 const ca = fs.readFileSync('/home/ubuntu/chain.pem', 'utf8');
@@ -21,13 +20,11 @@ const credentials = {
 	cert: certificate,
 	ca: ca
 };
-*/
 app.use(express.static('public', { dotfiles: 'allow' }));
 
-//const httpsServer = https.createServer(credentials, app);
-const httpsServer = https.createServer(app);
-httpsServer.listen(3450, function () {
-  console.log('HTTPS Server running on port 3450!');
+const httpsServer = https.createServer(credentials, app);
+httpsServer.listen(443, function () {
+  console.log('HTTPS Server running on port 443!');
 });
 
 const io = socketIO.listen(httpsServer);
