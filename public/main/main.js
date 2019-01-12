@@ -2,7 +2,7 @@
 
 
 const video = document.querySelector('video');
-const constraints = { audio: false, video: true };
+const constraints = { audio: true, video: true };
 const offerOptions = { offerToReceiveAudio: 1, offerToReceiveVideo: 1 };
 const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
@@ -12,7 +12,7 @@ function getDeviceId() {
     deviceId = prompt("Please enter your device id");
     if (deviceId) {
         document.getElementById("deviceId").innerHTML =
-            "Sender " + deviceId;
+            "Sending from device: " + deviceId;
     }
 }
 getDeviceId();

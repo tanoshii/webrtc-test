@@ -3,18 +3,33 @@
 
 <head>
   <title>Receiver: Realtime communication with WebRTC</title>
+  <meta name="application-name" content="Receiver: Realtime communication with WebRTC">
+  <meta name="theme-color" content="#2E3AA1">
+  <meta name="msapplication-TileColor" content="#3372DF">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Webcam Recorder WebRTC">
+  <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
+  <link rel="icon" sizes="192x192" href="../images/apple-touch-icon.png">
+  <link rel="stylesheet" href="../css/main.css">
 </head>
 
 <body>
 
-    <h1>Realtime communication with WebRTC</h1>
-    <h2 id="deviceId">Receiver</h2>
-    <video id="remoteVideo" autoplay playsinline></video>
 
-    <!-- This file is automatically added/served when running "node index.js". -->
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-    <script src="main.js"></script>
+  <div class="flex center">
+    <img style="vertical-align:middle" src="../images/safefleet.png" height="67.5px" width="120px" alt="Safefleet">
+    <h1 style="text-align:center">Realtime communication with WebRTC</h1>
+    <h2 style="text-align:center" id="deviceId">Receiving from device: </h2>
+  </div>
+  <video id="remoteVideo" autoplay playsinline muted controls></video>
+
+  <!-- This file is automatically added/served when running "node index.js". -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="main.js"></script>
 
 </body>
+
 </html>

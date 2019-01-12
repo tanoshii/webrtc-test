@@ -13,15 +13,16 @@
   <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
   <link rel="icon" sizes="192x192" href="../images/apple-touch-icon.png">
   <link rel="stylesheet" href="../css/main.css">
-
 </head>
 
 <body>
 
-  <h1>Realtime communication with WebRTC</h1>
-  <h2 id="deviceId">Sender</h2>
-  <video id="localVideo" autoplay playsinline></video>
-
+  <div class="flex center">
+    <img style="vertical-align:middle" src="../images/safefleet.png" height="67.5px" width="120px" alt="Safefleet">
+    <h1 style="text-align:center">Realtime communication with WebRTC</h1>
+    <h2 style="text-align:center" id="deviceId">Sending from device: </h2>
+  </div>
+  <video id="localVideo" autoplay playsinline muted controls></video>
 
   <!-- This file is automatically added/served when running "node index.js". -->
   <script src="/socket.io/socket.io.js"></script>

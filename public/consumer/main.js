@@ -11,7 +11,7 @@ function getDeviceId() {
     deviceId = prompt("Please enter your device id");
     if (deviceId) {
         document.getElementById("deviceId").innerHTML =
-            "Receiver " + deviceId;
+            "Receiving from device: " + deviceId;
     }
 }
 getDeviceId();
